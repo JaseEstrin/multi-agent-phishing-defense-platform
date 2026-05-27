@@ -1,7 +1,7 @@
 from pprint import pprint
 from email.utils import parseaddr
 
-from app.email_parser import parse_eml_file
+from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls
 
@@ -152,6 +152,49 @@ def build_evidence(
         evidence.append(f"URL uses a suspicious top-level domain: {url}")
 
     return evidence
+
+def analyze_eml_content(raw_email: str) -> dict:
+    parsed_email = parse_eml_content(raw_email)
+
+    urls = extract_urls(parsed_email["text_body"])
+    url_analysis = analyze_urls(urls)
+    suspicious_keywords = find_suspicious_keywords(parsed_email["text_body"])
+    risky_attachments = find_risky_attachments(parsed_email["attachments"])
+    reply_to_mismatch = has_reply_to_mismatch(parsed_email)
+
+    score = calculate_score(
+        urls,
+        suspicious_keywords,
+        parsed_email["attachments"],
+        risky_attachments,
+        reply_to_mismatch,
+        url_analysis,
+    )
+
+    verdict = classify_score(score)
+
+    evidence = build_evidence(
+        urls,
+        suspicious_keywords,
+        parsed_email["attachments"],
+        risky_attachments,
+        reply_to_mismatch,
+        url_analysis,
+    )
+
+    result = {
+        "parsed_email": parsed_email,
+        "urls": urls,
+        "suspicious_keywords": suspicious_keywords,
+        "risky_attachments": risky_attachments,
+        "score": score,
+        "verdict": verdict,
+        "evidence": evidence,
+        "reply_to_mismatch": reply_to_mismatch,
+        "url_analysis": url_analysis
+    }
+
+    return result
     
 def analyze_eml_file(path: str) -> dict:
     parsed_email = parse_eml_file(path)
