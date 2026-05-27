@@ -7,6 +7,19 @@ class FinalVerdict(str, Enum):
     LIKELY_PHISHING = "Likely Phishing"
     MALICIOUS = "Malicious"
 
+class FindingSeverity(str, Enum):
+    INFO = "info"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+class AgentFinding(BaseModel):
+    source: str
+    severity: FindingSeverity
+    title: str
+    description: str
+    evidence: str
+
 class EmailInput(BaseModel):
     raw_email: str
 
@@ -36,3 +49,4 @@ class PhishingAnalysisResult(BaseModel):
     evidence: list[str]
     reply_to_mismatch: bool
     url_analysis: URLAnalysis
+    findings: list[AgentFinding]

@@ -49,6 +49,12 @@ Thank you.
         "https://account-alert.xyz/login"
     ]
 
+    assert "findings" in data
+    assert data["findings"][0]["source"] == "URL Analyzer"
+    assert data["findings"][0]["title"] == "Suspicious top-level domain detected"
+    assert data["findings"][0]["severity"] == "low"
+    assert data["findings"][0]["evidence"] == "https://account-alert.xyz/login"
+
 def test_analyze_email_response_includes_structured_parsed_email():
     raw_email = """From: Test Notification <notice@example.com>
 To: user@example.com

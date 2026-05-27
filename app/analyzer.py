@@ -153,6 +153,72 @@ def build_evidence(
 
     return evidence
 
+def build_findings(
+        urls: list[str],
+        suspicious_keywords: list[str],
+        attachments: list[str],
+        risky_attachments: list[str],
+        reply_to_mismatch: bool,
+        url_analysis: dict,
+) -> list[dict]:
+    findings = []
+
+    for keyword in suspicious_keywords:
+        findings.append({
+            "source": "Language Analyzer",
+            "severity": "medium",
+            "title": "Suspicious keyword detected",
+            "description": "The email contains language commonly associated with phishing or social engineering.",
+            "evidence": keyword,
+        })
+
+    for filename in risky_attachments:
+        findings.append({
+            "source": "Attachment Analyzer",
+            "severity": "high",
+            "title": "Risky attachment type detected",
+            "description": "The email contains an attachment type that can commonly carry active content or malware.",
+            "evidence": filename,
+        })
+
+    if reply_to_mismatch:
+        findings.append({
+            "source": "Email Structure Analyzer",
+            "severity": "medium",
+            "title": "Reply-To domain mismatch",
+            "description": "The Reply-To domain does not match the From domain.",
+            "evidence": "Reply-To domain differs from From domain",
+        })
+
+    for url in url_analysis["ip_address_urls"]:
+        findings.append({
+            "source": "URL Analyzer",
+            "severity": "medium",
+            "title": "IP-Address URL detected",
+            "description": "The email contains a URL that uses an IP instead of a normal domain.",
+            "evidence": url,
+        })
+
+    for url in url_analysis["shortened_urls"]:
+        findings.append({
+            "source": "URL Analyzer",
+            "severity": "low",
+            "title": "URL shortener detected",
+            "description": "The email contains a URL using a known URL shortener.",
+            "evidence": url,
+        })
+
+    for url in url_analysis["suspicious_tld_urls"]:
+        findings.append({
+            "source": "URL Analyzer",
+            "severity": "low",
+            "title": "Suspicious top-level domain detected",
+            "description": "The email contains a URL using a top-level domain that may warrant extra caution.",
+            "evidence": url,
+        })
+    
+    return findings
+
 def analyze_parsed_email(parsed_email: dict) -> dict:
     urls = extract_urls(parsed_email["text_body"])
     url_analysis = analyze_urls(urls)
@@ -180,6 +246,15 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         url_analysis,
     )
 
+    findings = build_findings(
+        urls,
+        suspicious_keywords,
+        parsed_email["attachments"],
+        risky_attachments,
+        reply_to_mismatch,
+        url_analysis,
+    )
+
     result = {
         "parsed_email": parsed_email,
         "urls": urls,
@@ -189,7 +264,8 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         "verdict": verdict,
         "evidence": evidence,
         "reply_to_mismatch": reply_to_mismatch,
-        "url_analysis": url_analysis
+        "url_analysis": url_analysis,
+        "findings": findings,
     }
 
     return result
