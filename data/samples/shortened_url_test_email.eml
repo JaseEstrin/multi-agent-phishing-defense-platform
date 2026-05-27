@@ -1,0 +1,18 @@
+From: Test Notification <notice@example.com>
+To: user@example.com
+Subject: Synthetic Shortened URL Test
+Reply-To: notice@example.com
+Date: Tue, 26 May 2026 13:00:00 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+This is a synthetic test email for defensive phishing analysis.
+
+This sample contains a URL using a common URL shortener:
+https://bit.ly/safe-test
+
+This is for safe testing only.
+
+Thank you.

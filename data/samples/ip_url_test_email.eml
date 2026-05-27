@@ -1,0 +1,18 @@
+From: Test Notification <notice@example.com>
+To: user@example.com
+Subject: Synthetic IP URL Test
+Reply-To: notice@example.com
+Date: Tue, 26 May 2026 12:30:00 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+This is a synthetic test email for defensive phishing analysis.
+
+This sample contains a URL that uses an IP address instead of a normal domain:
+http://203.0.113.50/login
+
+This is for safe testing only.
+
+Thank you.

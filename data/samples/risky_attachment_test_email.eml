@@ -1,0 +1,29 @@
+From: Billing Notices <billing@example.com>
+To: user@example.com
+Subject: Synthetic Invoice Attachment Test
+Reply-To: billing-help@example.net
+Date: Tue, 26 May 2026 12:00:00 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY"
+
+--BOUNDARY
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+This is a synthetic test email for a phishing detection project.
+
+Please review the attached invoice details.
+This sample is for defensive testing only and does not contain a real attachment.
+
+Visit https://example.com/invoice-test for this safe test.
+
+Thank you.
+
+--BOUNDARY
+Content-Type: application/vnd.ms-excel.sheet.macroEnabled.12
+Content-Disposition: attachment; filename="invoice_details.xlsm"
+
+Synthetic attachment placeholder content for testing only.
+
+--BOUNDARY--

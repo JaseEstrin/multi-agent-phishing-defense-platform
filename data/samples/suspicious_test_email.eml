@@ -1,0 +1,18 @@
+From: Account Alerts <alerts@example.com>
+To: user@example.com
+Subject: Urgent Account Verification Required
+Reply-To: support@example.net
+Date: Tue, 26 May 2026 11:00:00 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+This is a synthetic test email for a phishing detection project.
+
+Urgent: please verify your account immediately.
+Your account may be suspended if no action is taken.
+
+Visit https://example.com/account-check for this safe test.
+
+Thank you.
