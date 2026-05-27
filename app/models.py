@@ -16,8 +16,18 @@ class URLAnalysis(BaseModel):
     suspicious_tld_urls: list[str]
     url_count: int
 
+class ParsedEmail(BaseModel):
+    from_address: str | None
+    to_address: str | None
+    reply_to: str | None
+    subject: str | None
+    date: str | None
+    text_body: str
+    html_body: str
+    attachments: list[str]
+
 class PhishingAnalysisResult(BaseModel):
-    parsed_email: dict
+    parsed_email: ParsedEmail
     urls: list[str]
     suspicious_keywords: list[str]
     risky_attachments: list[str]

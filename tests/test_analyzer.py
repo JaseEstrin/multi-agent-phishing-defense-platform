@@ -51,7 +51,7 @@ def test_extract_email_domain():
 
 def test_has_reply_to_mismatch_detects_different_domain():
     parsed_email = {
-        "from": "Billing Notices <billing@example.com>",
+        "from_address": "Billing Notices <billing@example.com>",
         "reply_to": "Support <support@example.net>",
     }
 

@@ -8,8 +8,8 @@ def parse_eml_content(raw_email: str) -> dict:
     msg = Parser(policy=policy.default).parsestr(raw_email)
 
     parsed = {
-        "from": msg.get("From"),
-        "to": msg.get("To"),
+        "from_address": msg.get("From"),
+        "to_address": msg.get("To"),
         "reply_to": msg.get("Reply-To"),
         "subject": msg.get("Subject"),
         "date": msg.get("Date"),
@@ -39,8 +39,8 @@ def parse_eml_file(path: str) -> dict:
         msg = BytesParser(policy=policy.default).parse(f)
 
     parsed = {
-        "from": msg.get("From"),
-        "to": msg.get("To"),
+        "from_address": msg.get("From"),
+        "to_address": msg.get("To"),
         "reply_to": msg.get("Reply-To"),
         "subject": msg.get("Subject"),
         "date": msg.get("Date"),
