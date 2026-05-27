@@ -1,0 +1,22 @@
+from email.utils import parseaddr
+
+def extract_email_domain(header_value: str | None) -> str | None:
+    if not header_value:
+        return None
+    
+    _, email_address = parseaddr(header_value)
+
+    if "@" not in email_address:
+        return None
+    
+    return email_address.split("@")[-1].lower()
+
+
+def has_reply_to_mismatch(parsed_email: dict) -> bool:
+    from_domain = extract_email_domain(parsed_email.get("from_address"))
+    reply_to_domain = extract_email_domain(parsed_email.get("reply_to"))
+
+    if not from_domain or not reply_to_domain:
+        return False
+    
+    return from_domain != reply_to_domain

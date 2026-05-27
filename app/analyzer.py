@@ -1,32 +1,11 @@
 from pprint import pprint
-from email.utils import parseaddr
 
 from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls
 from app.language_analyzer import find_suspicious_keywords
 from app.attachment_analyzer import find_risky_attachments
-
-def extract_email_domain(header_value: str | None) -> str | None:
-    if not header_value:
-        return None
-    
-    _, email_address = parseaddr(header_value)
-
-    if "@" not in email_address:
-        return None
-    
-    return email_address.split("@")[-1].lower()
-
-def has_reply_to_mismatch(parsed_email: dict) -> bool:
-    from_domain = extract_email_domain(parsed_email.get("from_address"))
-    reply_to_domain = extract_email_domain(parsed_email.get("reply_to"))
-
-    if not from_domain or not reply_to_domain:
-        return False
-    
-    return from_domain != reply_to_domain
-
+from app.email_structure_analyzer import has_reply_to_mismatch
 
 def calculate_score(
         urls: list[str], 
