@@ -1,7 +1,7 @@
 from email import policy
 from email.parser import BytesParser
 
-from url_extractor import extract_urls
+from app.url_extractor import extract_urls
 
 
 def parse_eml_file(path: str) -> dict:

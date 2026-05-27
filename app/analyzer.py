@@ -1,9 +1,9 @@
 from pprint import pprint
 from email.utils import parseaddr
 
-from email_parser import parse_eml_file
-from url_extractor import extract_urls
-from url_analyzer import analyze_urls
+from app.email_parser import parse_eml_file
+from app.url_extractor import extract_urls
+from app.url_analyzer import analyze_urls
 
 SUSPICIOUS_KEYWORDS = [
     "urgent",
@@ -111,7 +111,7 @@ def classify_score(score: int) -> str:
     if score >= 75:
         return "Malicious"
     elif score >= 50:
-        return "Likely phishing"
+        return "Likely Phishing"
     elif score >= 25:
         return "Suspicious"
     else:
