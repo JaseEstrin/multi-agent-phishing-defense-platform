@@ -4,58 +4,8 @@ from email.utils import parseaddr
 from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls
-
-SUSPICIOUS_KEYWORDS = [
-    "urgent",
-    "verify",
-    "password",
-    "account suspended",
-    "click here",
-    "limited time",
-    "immediately",
-    "confirm your account",
-    "payment failed",
-    "invoice",
-]
-
-RISKY_ATTACHMENT_EXTENSIONS = [
-    ".exe",
-    ".js",
-    ".vbs",
-    ".scr",
-    ".bat",
-    ".cmd",
-    ".ps1",
-    ".zip",
-    ".rar",
-    ".iso",
-    ".docm",
-    ".xlsm",
-]
-
-def find_suspicious_keywords(text: str) -> list[str]:
-    lowered_text = text.lower()
-
-    matches = []
-
-    for keyword in SUSPICIOUS_KEYWORDS:
-        if keyword in lowered_text:
-            matches.append(keyword)
-
-    return matches
-
-def find_risky_attachments(attachments: list[str]) -> list[str]:
-    risky = []
-
-    for filename in attachments:
-        lowered_filename = filename.lower()
-
-        for extension in RISKY_ATTACHMENT_EXTENSIONS:
-            if lowered_filename.endswith(extension):
-                risky.append(filename)
-                break
-
-    return risky
+from app.language_analyzer import find_suspicious_keywords
+from app.attachment_analyzer import find_risky_attachments
 
 def extract_email_domain(header_value: str | None) -> str | None:
     if not header_value:
