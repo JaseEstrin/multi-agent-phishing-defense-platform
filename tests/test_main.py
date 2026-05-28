@@ -43,6 +43,10 @@ Thank you.
 
     data = response.json()
 
+    assert "safety_notice" in data
+    assert "defensive decision-support" in data["safety_notice"]
+    assert "Do not click links" in data["safety_notice"]
+
     assert data["score"] == 15
 
     score_breakdown = data["score_breakdown"]

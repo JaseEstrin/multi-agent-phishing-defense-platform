@@ -13,6 +13,12 @@ from app.email_structure_analyzer import run_email_structure_analysis
 
 logger = logging.getLogger(__name__)
 
+SAFETY_NOTICE = (
+    "This analysis is automated and intended for defensive decision-support. "
+    "Do not click links, open attachments, reply to the sender, or provide sensitive "
+    "information unless the message has been verified through trusted channels."
+)
+
 def calculate_score(
         urls: list[str], 
         suspicious_keywords: list[str], 
@@ -198,6 +204,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         "url_analysis": state["url_analysis"],
         "findings": state["findings"],
         "score_breakdown": state["score_breakdown"],
+        "safety_notice": SAFETY_NOTICE,
     }
 
     logger.info(
