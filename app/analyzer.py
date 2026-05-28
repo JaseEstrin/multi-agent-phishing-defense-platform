@@ -2,7 +2,7 @@ from pprint import pprint
 
 from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
-from app.url_analyzer import analyze_urls
+from app.url_analyzer import analyze_urls, build_url_findings
 from app.language_analyzer import find_suspicious_keywords
 from app.attachment_analyzer import find_risky_attachments
 from app.email_structure_analyzer import has_reply_to_mismatch
@@ -138,32 +138,7 @@ def build_findings(
             "evidence": "Reply-To domain differs from From domain",
         })
 
-    for url in url_analysis["ip_address_urls"]:
-        findings.append({
-            "source": "URL Analyzer",
-            "severity": "medium",
-            "title": "IP-Address URL detected",
-            "description": "The email contains a URL that uses an IP instead of a normal domain.",
-            "evidence": url,
-        })
-
-    for url in url_analysis["shortened_urls"]:
-        findings.append({
-            "source": "URL Analyzer",
-            "severity": "low",
-            "title": "URL shortener detected",
-            "description": "The email contains a URL using a known URL shortener.",
-            "evidence": url,
-        })
-
-    for url in url_analysis["suspicious_tld_urls"]:
-        findings.append({
-            "source": "URL Analyzer",
-            "severity": "low",
-            "title": "Suspicious top-level domain detected",
-            "description": "The email contains a URL using a top-level domain that may warrant extra caution.",
-            "evidence": url,
-        })
+    findings.extend(build_url_findings(url_analysis))
     
     return findings
 

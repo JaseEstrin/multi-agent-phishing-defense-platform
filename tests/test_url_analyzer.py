@@ -3,7 +3,8 @@ from app.url_analyzer import (
     is_ip_address_url,
     is_url_shortener,
     has_suspicious_tld,
-    analyze_urls
+    analyze_urls,
+    build_url_findings,
 )
 
 def test_extract_domain_from_url():
@@ -25,3 +26,19 @@ def test_has_suspicious_tld_detects_xyz():
     url = "https://account-alert.xyz/login"
 
     assert has_suspicious_tld(url) is True
+
+def test_build_urls_for_suspicious_tld():
+    url_analysis = {
+        "ip_address_urls": [],
+        "shortened_urls": [],
+        "suspicious_tld_urls": ["https://account-alert.xyz/login"],
+        "url_count": 1,
+    }
+
+    findings = build_url_findings(url_analysis)
+
+    assert len(findings) == 1
+    assert findings[0]["source"] == "URL Analyzer"
+    assert findings[0]["severity"] == "low"
+    assert findings[0]["title"] == "Suspicious top-level domain detected"
+    assert findings[0]["evidence"] == "https://account-alert.xyz/login"

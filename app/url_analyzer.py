@@ -85,6 +85,38 @@ def analyze_urls(urls: list[str]) -> dict:
         "suspicious_tld_urls": suspicious_tld_urls,
         "url_count": len(urls)
     }
+
+def build_url_findings(url_analysis: dict) -> list[dict]:
+    findings = []
+
+    for url in url_analysis["ip_address_urls"]:
+        findings.append({
+            "source": "URL Analyzer",
+            "severity": "medium",
+            "title": "IP-address URL detected",
+            "description": "The email contains a URL that uses an IP address instead of a normal domain.",
+            "evidence": url,            
+        })
+
+    for url in url_analysis["shortened_urls"]:
+        findings.append({
+            "source": "URL Analyzer",
+            "severity": "low",
+            "title": "URL shortener detected",
+            "description": "The email contains a URL using a known URL shortener.",
+            "evidence": url,
+        })
+
+    for url in url_analysis["suspicious_tld_urls"]:
+        findings.append({
+            "source": "URL Analyzer",
+            "severity": "low",
+            "title": "Suspicious top-level domain detected",
+            "description": "The email contains a URL using a top-level domain that may warrant extra caution.",
+            "evidence": url,
+        })
+
+    return findings
     
 if __name__ == "__main__":
     test_urls = [
