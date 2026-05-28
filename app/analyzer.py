@@ -5,7 +5,7 @@ from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls, build_url_findings
 from app.language_analyzer import find_suspicious_keywords, build_language_findings
 from app.attachment_analyzer import find_risky_attachments, build_attachment_findings
-from app.email_structure_analyzer import has_reply_to_mismatch
+from app.email_structure_analyzer import has_reply_to_mismatch, build_email_structure_findings
 
 def calculate_score(
         urls: list[str], 
@@ -102,9 +102,7 @@ def build_evidence(
     return evidence
 
 def build_findings(
-        urls: list[str],
         suspicious_keywords: list[str],
-        attachments: list[str],
         risky_attachments: list[str],
         reply_to_mismatch: bool,
         url_analysis: dict,
@@ -112,18 +110,8 @@ def build_findings(
     findings = []
 
     findings.extend(build_language_findings(suspicious_keywords))
-
     findings.extend(build_attachment_findings(risky_attachments))
-
-    if reply_to_mismatch:
-        findings.append({
-            "source": "Email Structure Analyzer",
-            "severity": "medium",
-            "title": "Reply-To domain mismatch",
-            "description": "The Reply-To domain does not match the From domain.",
-            "evidence": "Reply-To domain differs from From domain",
-        })
-
+    findings.extend(build_email_structure_findings(reply_to_mismatch))
     findings.extend(build_url_findings(url_analysis))
     
     return findings
@@ -157,9 +145,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
 
 
     findings = build_findings(
-        urls,
         suspicious_keywords,
-        parsed_email["attachments"],
         risky_attachments,
         reply_to_mismatch,
         url_analysis,

@@ -20,3 +20,17 @@ def has_reply_to_mismatch(parsed_email: dict) -> bool:
         return False
     
     return from_domain != reply_to_domain
+
+def build_email_structure_findings(reply_to_mismatch: bool) -> list[dict]:
+    findings = []
+
+    if reply_to_mismatch:
+        findings.append({
+            "source": "Email Structure Analyzer",
+            "severity": "medium",
+            "title": "Reply-To domain mismatch",
+            "description": "The Reply-To domain does not match the From domain.",
+            "evidence": "Reply-To domain differs from From domain",
+        })
+
+    return findings
