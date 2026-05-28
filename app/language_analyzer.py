@@ -36,3 +36,12 @@ def build_language_findings(suspicious_keywords: list[str]) -> dict:
         })
 
     return findings
+
+def run_language_analysis(text: str) -> dict:
+    suspicious_keywords = find_suspicious_keywords(text)
+    findings = build_language_findings(suspicious_keywords)
+
+    return {
+        "suspicious_keywords": suspicious_keywords,
+        "findings": findings,
+    }

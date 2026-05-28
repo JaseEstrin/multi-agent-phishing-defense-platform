@@ -3,7 +3,7 @@ from pprint import pprint
 from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls, build_url_findings
-from app.language_analyzer import find_suspicious_keywords, build_language_findings
+from app.language_analyzer import run_language_analysis
 from app.attachment_analyzer import find_risky_attachments, build_attachment_findings
 from app.email_structure_analyzer import has_reply_to_mismatch, build_email_structure_findings
 
@@ -102,14 +102,14 @@ def build_evidence(
     return evidence
 
 def build_findings(
-        suspicious_keywords: list[str],
+        language_findings: list[dict],
         risky_attachments: list[str],
         reply_to_mismatch: bool,
         url_analysis: dict,
 ) -> list[dict]:
     findings = []
 
-    findings.extend(build_language_findings(suspicious_keywords))
+    findings.extend(language_findings)
     findings.extend(build_attachment_findings(risky_attachments))
     findings.extend(build_email_structure_findings(reply_to_mismatch))
     findings.extend(build_url_findings(url_analysis))
@@ -119,7 +119,8 @@ def build_findings(
 def analyze_parsed_email(parsed_email: dict) -> dict:
     urls = extract_urls(parsed_email["text_body"])
     url_analysis = analyze_urls(urls)
-    suspicious_keywords = find_suspicious_keywords(parsed_email["text_body"])
+    language_analysis = run_language_analysis(parsed_email["text_body"])
+    suspicious_keywords = language_analysis["suspicious_keywords"]
     risky_attachments = find_risky_attachments(parsed_email["attachments"])
     reply_to_mismatch = has_reply_to_mismatch(parsed_email)
 
@@ -145,7 +146,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
 
 
     findings = build_findings(
-        suspicious_keywords,
+        language_analysis["findings"],
         risky_attachments,
         reply_to_mismatch,
         url_analysis,
