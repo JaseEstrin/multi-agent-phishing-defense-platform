@@ -150,7 +150,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
     findings = build_findings(
         language_analysis["findings"],
         attachment_analysis["findings"],
-        reply_to_mismatch,
+        email_structure_analysis["findings"],
         url_analysis,
     )
 
