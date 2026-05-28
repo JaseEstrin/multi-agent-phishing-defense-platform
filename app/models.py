@@ -50,6 +50,8 @@ class ScoreBreakdown(BaseModel):
     suspicious_tld_urls: int
 
 class PhishingAnalysisResult(BaseModel):
+    analysis_id: str
+    created_at: str
     parsed_email: ParsedEmail
     urls: list[str]
     suspicious_keywords: list[str]

@@ -69,6 +69,14 @@ Thank you.
     assert data["findings"][0]["severity"] == "low"
     assert data["findings"][0]["evidence"] == "https://account-alert.xyz/login"
 
+    assert "analysis_id" in data
+    assert isinstance(data["analysis_id"], str)
+    assert len(data["analysis_id"]) > 0
+
+    assert "created_at" in data
+    assert isinstance(data["created_at"], str)
+    assert len(data["created_at"]) > 0
+
 def test_analyze_email_response_includes_structured_parsed_email():
     raw_email = """From: Test Notification <notice@example.com>
 To: user@example.com

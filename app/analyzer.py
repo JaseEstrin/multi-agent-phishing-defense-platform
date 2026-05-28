@@ -1,4 +1,6 @@
 from pprint import pprint
+from datetime import datetime, timezone
+from uuid import uuid4
 
 from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
@@ -118,6 +120,8 @@ def build_findings(
 
 def create_initial_state(parsed_email: dict) -> dict:
     return {
+        "analysis_id": str(uuid4()),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "parsed_email": parsed_email,
         "urls": [],
         "language_analysis": {},
@@ -175,6 +179,8 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
     )
 
     result = {
+        "analysis_id": state["analysis_id"],
+        "created_at": state["created_at"],
         "parsed_email": state["parsed_email"],
         "urls": state["urls"],
         "suspicious_keywords": suspicious_keywords,
