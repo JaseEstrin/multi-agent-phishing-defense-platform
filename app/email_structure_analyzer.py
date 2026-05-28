@@ -34,3 +34,12 @@ def build_email_structure_findings(reply_to_mismatch: bool) -> list[dict]:
         })
 
     return findings
+
+def run_email_structure_analysis(parsed_email: dict) -> dict:
+    reply_to_mismatch = has_reply_to_mismatch(parsed_email)
+    findings = build_email_structure_findings(reply_to_mismatch)
+
+    return {
+        "reply_to_mismatch": reply_to_mismatch,
+        "findings": findings,
+    }

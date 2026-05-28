@@ -5,7 +5,7 @@ from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls, build_url_findings
 from app.language_analyzer import run_language_analysis
 from app.attachment_analyzer import run_attachment_analysis
-from app.email_structure_analyzer import has_reply_to_mismatch, build_email_structure_findings
+from app.email_structure_analyzer import run_email_structure_analysis
 
 def calculate_score(
         urls: list[str], 
@@ -104,14 +104,14 @@ def build_evidence(
 def build_findings(
         language_findings: list[dict],
         attachment_findings: list[dict],
-        reply_to_mismatch: bool,
+        email_structure_findings: list[dict],
         url_analysis: dict,
 ) -> list[dict]:
     findings = []
 
     findings.extend(language_findings)
     findings.extend(attachment_findings)
-    findings.extend(build_email_structure_findings(reply_to_mismatch))
+    findings.extend(email_structure_findings)
     findings.extend(build_url_findings(url_analysis))
     
     return findings
@@ -123,7 +123,8 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
     suspicious_keywords = language_analysis["suspicious_keywords"]
     attachment_analysis = run_attachment_analysis(parsed_email["attachments"])
     risky_attachments = attachment_analysis["risky_attachments"]
-    reply_to_mismatch = has_reply_to_mismatch(parsed_email)
+    email_structure_analysis = run_email_structure_analysis(parsed_email)
+    reply_to_mismatch = email_structure_analysis["reply_to_mismatch"]
 
     score = calculate_score(
         urls,

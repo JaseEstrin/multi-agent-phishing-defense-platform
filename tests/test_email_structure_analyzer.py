@@ -2,6 +2,7 @@ from app.email_structure_analyzer import (
     extract_email_domain,
     has_reply_to_mismatch,
     build_email_structure_findings,
+    run_email_structure_analysis,
 )
 
 
@@ -27,3 +28,15 @@ def test_build_email_structure_findings_for_reply_to_mismatch():
     assert findings[0]["severity"] == "medium"
     assert findings[0]["title"] == "Reply-To domain mismatch"
     assert findings[0]["evidence"] == "Reply-To domain differs from From domain"
+
+def test_run_email_structure_analysis_returns_mismatch_and_findings():
+    parsed_email = {
+        "from_address": "Billing Notices <billing@example.com>",
+        "reply_to": "Support <support@example.net>",
+    }
+
+    result = run_email_structure_analysis(parsed_email)
+
+    assert result["reply_to_mismatch"] is True
+    assert len(result["findings"]) == 1
+    assert result["findings"][0]["source"] == "Email Structure Analyzer"
