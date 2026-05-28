@@ -40,3 +40,12 @@ def build_attachment_findings(risky_attachments: list[str]) -> list[dict]:
         })
 
     return findings
+
+def run_attachment_analysis(attachments: list[str]) -> dict:
+    risky_attachments = find_risky_attachments(attachments)
+    findings = build_attachment_findings(risky_attachments)
+
+    return {
+        "risky_attachments": risky_attachments,
+        "findings": findings,
+    }

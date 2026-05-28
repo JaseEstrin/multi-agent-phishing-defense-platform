@@ -4,7 +4,7 @@ from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls, build_url_findings
 from app.language_analyzer import run_language_analysis
-from app.attachment_analyzer import find_risky_attachments, build_attachment_findings
+from app.attachment_analyzer import run_attachment_analysis
 from app.email_structure_analyzer import has_reply_to_mismatch, build_email_structure_findings
 
 def calculate_score(
@@ -103,14 +103,14 @@ def build_evidence(
 
 def build_findings(
         language_findings: list[dict],
-        risky_attachments: list[str],
+        attachment_findings: list[dict],
         reply_to_mismatch: bool,
         url_analysis: dict,
 ) -> list[dict]:
     findings = []
 
     findings.extend(language_findings)
-    findings.extend(build_attachment_findings(risky_attachments))
+    findings.extend(attachment_findings)
     findings.extend(build_email_structure_findings(reply_to_mismatch))
     findings.extend(build_url_findings(url_analysis))
     
@@ -121,7 +121,8 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
     url_analysis = analyze_urls(urls)
     language_analysis = run_language_analysis(parsed_email["text_body"])
     suspicious_keywords = language_analysis["suspicious_keywords"]
-    risky_attachments = find_risky_attachments(parsed_email["attachments"])
+    attachment_analysis = run_attachment_analysis(parsed_email["attachments"])
+    risky_attachments = attachment_analysis["risky_attachments"]
     reply_to_mismatch = has_reply_to_mismatch(parsed_email)
 
     score = calculate_score(
@@ -147,7 +148,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
 
     findings = build_findings(
         language_analysis["findings"],
-        risky_attachments,
+        attachment_analysis["findings"],
         reply_to_mismatch,
         url_analysis,
     )
