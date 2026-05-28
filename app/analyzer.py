@@ -116,73 +116,76 @@ def build_findings(
     
     return findings
 
+def create_initial_state(parsed_email: dict) -> dict:
+    return {
+        "parsed_email": parsed_email,
+        "urls": [],
+        "language_analysis": {},
+        "email_structure_analysis": {},
+        "url_analysis": {},
+        "findings": [],
+        "score_breakdown": {},
+        "score": 0,
+        "verdict": None,
+    }
+
 def analyze_parsed_email(parsed_email: dict) -> dict:
-    urls = extract_urls(parsed_email["text_body"])
+    state = create_initial_state(parsed_email)
 
-    url_analysis_result = run_url_analysis(urls)
-    url_analysis = url_analysis_result["url_analysis"]
+    state["urls"] = extract_urls(parsed_email["text_body"])
 
-    language_analysis = run_language_analysis(parsed_email["text_body"])
-    suspicious_keywords = language_analysis["suspicious_keywords"]
+    url_analysis_result = run_url_analysis(state["urls"])
+    state["url_analysis"] = url_analysis_result["url_analysis"]
 
-    attachment_analysis = run_attachment_analysis(parsed_email["attachments"])
-    risky_attachments = attachment_analysis["risky_attachments"]
+    state["language_analysis"] = run_language_analysis(parsed_email["text_body"])
+    suspicious_keywords = state["language_analysis"]["suspicious_keywords"]
 
-    email_structure_analysis = run_email_structure_analysis(parsed_email)
-    reply_to_mismatch = email_structure_analysis["reply_to_mismatch"]
+    state["attachment_analysis"] = run_attachment_analysis(parsed_email["attachments"])
+    risky_attachments = state["attachment_analysis"]["risky_attachments"]
 
-    score = calculate_score(
-        urls,
-        suspicious_keywords,
-        parsed_email["attachments"],
-        risky_attachments,
-        reply_to_mismatch,
-        url_analysis,
-    )
+    state["email_structure_analysis"] = run_email_structure_analysis(parsed_email)
+    reply_to_mismatch = state["email_structure_analysis"]["reply_to_mismatch"]
 
-    verdict = classify_score(score)
-
-    evidence = build_evidence(
-        urls,
-        suspicious_keywords,
-        parsed_email["attachments"],
-        risky_attachments,
-        reply_to_mismatch,
-        url_analysis,
-    )
-
-
-    findings = build_findings(
-        language_analysis["findings"],
-        attachment_analysis["findings"],
-        email_structure_analysis["findings"],
+    state["findings"] = build_findings(
+        state["language_analysis"]["findings"],
+        state["attachment_analysis"]["findings"],
+        state["email_structure_analysis"]["findings"],
         url_analysis_result["findings"],
     )
 
-    score_breakdown = build_score_breakdown(
-        urls,
+    state["score_breakdown"] = build_score_breakdown(
+        state["urls"],
         suspicious_keywords,
         parsed_email["attachments"],
         risky_attachments,
         reply_to_mismatch,
-        url_analysis,
+        state["url_analysis"],
     )
 
-    score = min(sum(score_breakdown.values()), 100)
-    verdict = classify_score(score)
+    state["score"] = min(sum(state["score_breakdown"].values()), 100)
+    state["verdict"] = classify_score(state["score"])
+
+    evidence = build_evidence(
+        state["urls"],
+        suspicious_keywords,
+        parsed_email["attachments"],
+        risky_attachments,
+        reply_to_mismatch,
+        state["url_analysis"],
+    )
 
     result = {
-        "parsed_email": parsed_email,
-        "urls": urls,
+        "parsed_email": state["parsed_email"],
+        "urls": state["urls"],
         "suspicious_keywords": suspicious_keywords,
         "risky_attachments": risky_attachments,
-        "score": score,
-        "verdict": verdict,
+        "score": state["score"],
+        "verdict": state["verdict"],
         "evidence": evidence,
         "reply_to_mismatch": reply_to_mismatch,
-        "url_analysis": url_analysis,
-        "findings": findings,
-        "score_breakdown": score_breakdown,
+        "url_analysis": state["url_analysis"],
+        "findings": state["findings"],
+        "score_breakdown": state["score_breakdown"],
     }
 
     return result
