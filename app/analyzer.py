@@ -169,6 +169,9 @@ def create_initial_state(parsed_email: dict) -> AnalysisState:
         "score_breakdown": {},
         "score": 0,
         "verdict": None,
+        "evidence": [],
+        "recommended_actions": [],
+        "safety_notice": SAFETY_NOTICE,
     }
 
 def run_language_step(state: AnalysisState) -> AnalysisState:
@@ -226,20 +229,11 @@ def run_url_step(state: AnalysisState) -> AnalysisState:
 
     return state
 
-def analyze_parsed_email(parsed_email: dict) -> dict:
-    state: AnalysisState = create_initial_state(parsed_email)
+def run_verdict_step(state: AnalysisState) -> AnalysisState:
+    parsed_email = state["parsed_email"]
 
-    logger.info("Analysis started: %s", state["analysis_id"])
-
-    state = run_url_step(state)
-
-    state = run_language_step(state)
     suspicious_keywords = state["language_analysis"]["suspicious_keywords"]
-
-    state = run_attachment_step(state)
     risky_attachments = state["attachment_analysis"]["risky_attachments"]
-
-    state = run_email_structure_step(state)
     reply_to_mismatch = state["email_structure_analysis"]["reply_to_mismatch"]
 
     state["findings"] = build_findings(
@@ -252,7 +246,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
     state["score_breakdown"] = build_score_breakdown(
         state["urls"],
         suspicious_keywords,
-        parsed_email["attachments"],
+        parsed_email.get("attachments", []),
         risky_attachments,
         reply_to_mismatch,
         state["url_analysis"],
@@ -261,36 +255,49 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
     state["score"] = min(sum(state["score_breakdown"].values()), 100)
     state["verdict"] = classify_score(state["score"])
 
-    evidence = build_evidence(
+    state["evidence"] = build_evidence(
         state["urls"],
         suspicious_keywords,
-        parsed_email["attachments"],
+        parsed_email.get("attachments", []),
         risky_attachments,
         reply_to_mismatch,
         state["url_analysis"],
     )
 
-    recommended_actions = build_recommended_actions(
+    state["recommended_actions"] = build_recommended_actions(
         state["verdict"],
         state["findings"],
     )
+
+    return state
+
+def analyze_parsed_email(parsed_email: dict) -> dict:
+    state: AnalysisState = create_initial_state(parsed_email)
+
+    logger.info("Analysis started: %s", state["analysis_id"])
+
+    state = run_url_step(state)
+    state = run_language_step(state)
+    state = run_attachment_step(state)
+    state = run_email_structure_step(state)
+    state = run_verdict_step(state)
 
     result = {
         "analysis_id": state["analysis_id"],
         "created_at": state["created_at"],
         "parsed_email": state["parsed_email"],
         "urls": state["urls"],
-        "suspicious_keywords": suspicious_keywords,
-        "risky_attachments": risky_attachments,
+        "suspicious_keywords": state["language_analysis"]["suspicious_keywords"],
+        "risky_attachments": state["attachment_analysis"]["risky_attachments"],
         "score": state["score"],
         "verdict": state["verdict"],
-        "evidence": evidence,
-        "reply_to_mismatch": reply_to_mismatch,
+        "evidence": state["evidence"],
+        "reply_to_mismatch": state["email_structure_analysis"]["reply_to_mismatch"],
         "url_analysis": state["url_analysis"],
         "findings": state["findings"],
         "score_breakdown": state["score_breakdown"],
-        "recommended_actions": recommended_actions,
-        "safety_notice": SAFETY_NOTICE,
+        "recommended_actions": state["recommended_actions"],
+        "safety_notice": state["safety_notice"],
     }
 
     logger.info(

@@ -24,3 +24,7 @@ class AnalysisState(TypedDict, total=False):
     score_breakdown: dict[str, int]
     score: int
     verdict: str | None
+
+    evidence: list[str]
+    recommended_actions: list[str]
+    safety_notice:str
