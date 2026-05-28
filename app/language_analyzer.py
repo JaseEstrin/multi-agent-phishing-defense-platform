@@ -22,3 +22,17 @@ def find_suspicious_keywords(text: str) -> list[str]:
             matches.append(keyword)
 
     return matches
+
+def build_language_findings(suspicious_keywords: list[str]) -> dict:
+    findings = []
+
+    for keyword in suspicious_keywords:
+        findings.append({
+            "source": "Language Analyzer",
+            "severity": "medium",
+            "title": "Suspicious keyword detected",
+            "description": "The email contains language commonly associated with phishing or social engineering.",
+            "evidence": keyword,
+        })
+
+    return findings

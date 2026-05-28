@@ -3,7 +3,7 @@ from pprint import pprint
 from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls, build_url_findings
-from app.language_analyzer import find_suspicious_keywords
+from app.language_analyzer import find_suspicious_keywords, build_language_findings
 from app.attachment_analyzer import find_risky_attachments, build_attachment_findings
 from app.email_structure_analyzer import has_reply_to_mismatch
 
@@ -111,14 +111,7 @@ def build_findings(
 ) -> list[dict]:
     findings = []
 
-    for keyword in suspicious_keywords:
-        findings.append({
-            "source": "Language Analyzer",
-            "severity": "medium",
-            "title": "Suspicious keyword detected",
-            "description": "The email contains language commonly associated with phishing or social engineering.",
-            "evidence": keyword,
-        })
+    findings.extend(build_language_findings(suspicious_keywords))
 
     findings.extend(build_attachment_findings(risky_attachments))
 
