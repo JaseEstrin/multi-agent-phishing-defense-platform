@@ -63,4 +63,5 @@ class PhishingAnalysisResult(BaseModel):
     url_analysis: URLAnalysis
     findings: list[AgentFinding]
     score_breakdown: ScoreBreakdown
+    recommended_actions: list[str]
     safety_notice: str

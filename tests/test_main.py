@@ -47,6 +47,11 @@ Thank you.
     assert "defensive decision-support" in data["safety_notice"]
     assert "Do not click links" in data["safety_notice"]
 
+    assert "recommended_actions" in data
+    assert isinstance(data["recommended_actions"], list)
+    assert len(data["recommended_actions"]) > 0
+    assert any("Do not click links" in action for action in data["recommended_actions"])
+
     assert data["score"] == 15
 
     score_breakdown = data["score_breakdown"]
@@ -117,3 +122,70 @@ Thank you.
     assert "structured parsed_email response" in parsed_email["text_body"]
     assert parsed_email["html_body"] == ""
     assert parsed_email["attachments"] == []
+
+def test_analyze_email_recommends_stronger_actions_for_high_risk_email():
+    raw_email = """From: Billing Alerts <billing@example.com>
+To: user@example.com
+Subject: Urgent Invoice Verification Required
+Reply-To: support@example.net
+Date: Tue, 26 May 2026 15:00:00 -0400
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOUNDARY"
+
+--BOUNDARY
+Content-Type: text/plain; charset="UTF-8"
+
+Hello,
+
+This is a synthetic test email for a defensive phishing detection project.
+
+Urgent: please verify this invoice immediately.
+This message is for safe local testing only.
+
+Review the test invoice here:
+https://account-alert.xyz/invoice-check
+
+Thank you.
+
+--BOUNDARY
+Content-Type: application/vnd.ms-excel.sheet.macroEnabled.12
+Content-Disposition: attachment; filename="invoice_details.xlsm"
+
+Synthetic attachment placeholder content for testing only.
+
+--BOUNDARY--
+"""
+
+    response = client.post(
+        "/analyze-email",
+        json={"raw_email": raw_email},
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["score"] >= 50
+    assert data["verdict"] in ["Likely Phishing", "Malicious"]
+
+    assert data["reply_to_mismatch"] is True
+    assert data["risky_attachments"] == ["invoice_details.xlsm"]
+
+    assert "urgent" in data["suspicious_keywords"]
+    assert "verify" in data["suspicious_keywords"]
+    assert "invoice" in data["suspicious_keywords"]
+    assert "immediately" in data["suspicious_keywords"]
+
+    assert data["url_analysis"]["suspicious_tld_urls"] == [
+        "https://account-alert.xyz/invoice-check"
+    ]
+
+    assert any(
+        "Do not provide passwords" in action
+        for action in data["recommended_actions"]
+    )
+
+    assert any(
+        "Do not open the attachment" in action
+        for action in data["recommended_actions"]
+    )

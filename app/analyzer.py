@@ -128,6 +128,28 @@ def build_findings(
     
     return findings
 
+def build_recommended_actions(verdict: str, findings: list[str]) -> list[str]:
+    actions = [
+        "Do not click links or open attachments until the message is verified.",
+        "Verify the sender through a trusted channel, not by replying to the email.",
+    ]
+
+    if verdict in ["Suspicious", "Likely Phishing", "Malicious"]:
+        actions.append("Report the message to your security team or email provider.")
+
+    if verdict in ["Likely Phishing", "Malicious"]:
+        actions.append("Do not provide passwords, payment information, or other sensitive data.")
+
+    if verdict == "Malicious":
+        actions.append("Quarantine or delete the message according to your organization’s policy.")
+
+    for finding in findings:
+        if finding["source"] == "Attachment Analyzer":
+            actions.append("Do not open the attachment unless it has been reviewed in a safe environment.")
+            break
+
+    return actions
+
 def create_initial_state(parsed_email: dict) -> dict:
     return {
         "analysis_id": str(uuid4()),
@@ -190,6 +212,11 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         state["url_analysis"],
     )
 
+    recommended_actions = build_recommended_actions(
+        state["verdict"],
+        state["findings"],
+    )
+
     result = {
         "analysis_id": state["analysis_id"],
         "created_at": state["created_at"],
@@ -204,6 +231,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         "url_analysis": state["url_analysis"],
         "findings": state["findings"],
         "score_breakdown": state["score_breakdown"],
+        "recommended_actions": recommended_actions,
         "safety_notice": SAFETY_NOTICE,
     }
 
