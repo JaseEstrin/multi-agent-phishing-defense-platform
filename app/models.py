@@ -39,6 +39,16 @@ class ParsedEmail(BaseModel):
     html_body: str
     attachments: list[str]
 
+class ScoreBreakdown(BaseModel):
+    suspicious_keywords: int
+    url_count: int
+    attachments: int
+    risky_attachments: int
+    reply_to_mismatch: int
+    ip_address_urls: int
+    shortened_urls: int
+    suspicious_tld_urls: int
+
 class PhishingAnalysisResult(BaseModel):
     parsed_email: ParsedEmail
     urls: list[str]
@@ -50,3 +60,4 @@ class PhishingAnalysisResult(BaseModel):
     reply_to_mismatch: bool
     url_analysis: URLAnalysis
     findings: list[AgentFinding]
+    score_breakdown: ScoreBreakdown

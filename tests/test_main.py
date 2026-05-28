@@ -44,6 +44,20 @@ Thank you.
     data = response.json()
 
     assert data["score"] == 15
+
+    score_breakdown = data["score_breakdown"]
+
+    assert score_breakdown["suspicious_keywords"] == 0
+    assert score_breakdown["url_count"] == 5
+    assert score_breakdown["attachments"] == 0
+    assert score_breakdown["risky_attachments"] == 0
+    assert score_breakdown["reply_to_mismatch"] == 0
+    assert score_breakdown["ip_address_urls"] == 0
+    assert score_breakdown["shortened_urls"] == 0
+    assert score_breakdown["suspicious_tld_urls"] == 10
+
+    assert sum(score_breakdown.values()) == data["score"]
+
     assert data["verdict"] == "Safe"
     assert data["url_analysis"]["suspicious_tld_urls"] == [
         "https://account-alert.xyz/login"

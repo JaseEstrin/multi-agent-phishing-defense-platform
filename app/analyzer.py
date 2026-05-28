@@ -46,6 +46,25 @@ def classify_score(score: int) -> str:
     else:
         return "Safe"
     
+def build_score_breakdown(
+        urls: list[str],
+        suspicious_keywords: list[str],
+        attachments: list[str],
+        risky_attachments: list[str],
+        reply_to_mismatch: bool,
+        url_analysis:dict,
+) -> dict:
+    return {
+        "suspicious_keywords": len(suspicious_keywords) * 10,
+        "url_count": len(urls) * 5,
+        "attachments": len(attachments) * 5,
+        "risky_attachments": len(risky_attachments) * 20,
+        "reply_to_mismatch": 10 if reply_to_mismatch else 0,
+        "ip_address_urls": len(url_analysis["ip_address_urls"]) * 15,
+        "shortened_urls": len(url_analysis["shortened_urls"]) * 10,
+        "suspicious_tld_urls": len(url_analysis["suspicious_tld_urls"]) * 10
+    }
+    
 def build_evidence(
         urls: list[str], 
         suspicious_keywords: list[str], 
@@ -175,6 +194,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         url_analysis,
     )
 
+
     findings = build_findings(
         urls,
         suspicious_keywords,
@@ -183,6 +203,18 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         reply_to_mismatch,
         url_analysis,
     )
+
+    score_breakdown = build_score_breakdown(
+        urls,
+        suspicious_keywords,
+        parsed_email["attachments"],
+        risky_attachments,
+        reply_to_mismatch,
+        url_analysis,
+    )
+
+    score = min(sum(score_breakdown.values()), 100)
+    verdict = classify_score(score)
 
     result = {
         "parsed_email": parsed_email,
@@ -195,6 +227,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         "reply_to_mismatch": reply_to_mismatch,
         "url_analysis": url_analysis,
         "findings": findings,
+        "score_breakdown": score_breakdown,
     }
 
     return result
