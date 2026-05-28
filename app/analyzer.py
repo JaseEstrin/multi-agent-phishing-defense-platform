@@ -4,7 +4,7 @@ from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
 from app.url_analyzer import analyze_urls, build_url_findings
 from app.language_analyzer import find_suspicious_keywords
-from app.attachment_analyzer import find_risky_attachments
+from app.attachment_analyzer import find_risky_attachments, build_attachment_findings
 from app.email_structure_analyzer import has_reply_to_mismatch
 
 def calculate_score(
@@ -120,14 +120,7 @@ def build_findings(
             "evidence": keyword,
         })
 
-    for filename in risky_attachments:
-        findings.append({
-            "source": "Attachment Analyzer",
-            "severity": "high",
-            "title": "Risky attachment type detected",
-            "description": "The email contains an attachment type that can commonly carry active content or malware.",
-            "evidence": filename,
-        })
+    findings.extend(build_attachment_findings(risky_attachments))
 
     if reply_to_mismatch:
         findings.append({

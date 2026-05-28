@@ -26,3 +26,17 @@ def find_risky_attachments(attachments: list[str]) -> list[str]:
                 break
 
     return risky
+
+def build_attachment_findings(risky_attachments: list[str]) -> list[dict]:
+    findings = []
+
+    for filename in risky_attachments:
+        findings.append({
+            "source": "Attachment Analyzer",
+            "severity": "high",
+            "title": "Risky attachment type detected",
+            "description": "The email includes an attachment type that can commonly carry active content or malware.",
+            "evidence": filename,
+        })
+
+    return findings
