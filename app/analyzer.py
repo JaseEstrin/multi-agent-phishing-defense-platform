@@ -271,18 +271,8 @@ def run_verdict_step(state: AnalysisState) -> AnalysisState:
 
     return state
 
-def analyze_parsed_email(parsed_email: dict) -> dict:
-    state: AnalysisState = create_initial_state(parsed_email)
-
-    logger.info("Analysis started: %s", state["analysis_id"])
-
-    state = run_url_step(state)
-    state = run_language_step(state)
-    state = run_attachment_step(state)
-    state = run_email_structure_step(state)
-    state = run_verdict_step(state)
-
-    result = {
+def build_analysis_result(state: AnalysisState) -> AnalysisState:
+    return {
         "analysis_id": state["analysis_id"],
         "created_at": state["created_at"],
         "parsed_email": state["parsed_email"],
@@ -299,6 +289,19 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         "recommended_actions": state["recommended_actions"],
         "safety_notice": state["safety_notice"],
     }
+
+def analyze_parsed_email(parsed_email: dict) -> dict:
+    state: AnalysisState = create_initial_state(parsed_email)
+
+    logger.info("Analysis started: %s", state["analysis_id"])
+
+    state = run_url_step(state)
+    state = run_language_step(state)
+    state = run_attachment_step(state)
+    state = run_email_structure_step(state)
+    state = run_verdict_step(state)
+
+    result = build_analysis_result(state)
 
     logger.info(
         "Analysis completed: analysis_id=%s score=%s verdict=%s finding_count=%s",
