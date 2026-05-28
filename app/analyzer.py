@@ -1,3 +1,5 @@
+import logging
+
 from pprint import pprint
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -8,6 +10,8 @@ from app.url_analyzer import run_url_analysis
 from app.language_analyzer import run_language_analysis
 from app.attachment_analyzer import run_attachment_analysis
 from app.email_structure_analyzer import run_email_structure_analysis
+
+logger = logging.getLogger(__name__)
 
 def calculate_score(
         urls: list[str], 
@@ -136,6 +140,8 @@ def create_initial_state(parsed_email: dict) -> dict:
 def analyze_parsed_email(parsed_email: dict) -> dict:
     state = create_initial_state(parsed_email)
 
+    logger.info("Analysis started: %s", state["analysis_id"])
+
     state["urls"] = extract_urls(parsed_email["text_body"])
 
     url_analysis_result = run_url_analysis(state["urls"])
@@ -193,6 +199,14 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         "findings": state["findings"],
         "score_breakdown": state["score_breakdown"],
     }
+
+    logger.info(
+        "Analysis completed: analysis_id=%s score=%s verdict=%s finding_count=%s",
+        state["analysis_id"],
+        state["score"],
+        state["verdict"],
+        len(state["findings"]),
+    )
 
     return result
 

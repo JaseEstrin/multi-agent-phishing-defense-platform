@@ -1,7 +1,15 @@
+import logging
+
 from fastapi import FastAPI
 
 from app.analyzer import analyze_eml_content
 from app.models import EmailInput, PhishingAnalysisResult
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s"
+)
 
 
 app = FastAPI()
