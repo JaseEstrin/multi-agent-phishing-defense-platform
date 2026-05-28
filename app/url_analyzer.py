@@ -117,6 +117,15 @@ def build_url_findings(url_analysis: dict) -> list[dict]:
         })
 
     return findings
+
+def run_url_analysis(urls: list[str]) -> dict:
+    url_analysis = analyze_urls(urls)
+    findings = build_url_findings(url_analysis)
+
+    return {
+        "url_analysis": url_analysis,
+        "findings": findings,
+    }
     
 if __name__ == "__main__":
     test_urls = [

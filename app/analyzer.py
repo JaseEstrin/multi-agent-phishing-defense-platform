@@ -2,7 +2,7 @@ from pprint import pprint
 
 from app.email_parser import parse_eml_file, parse_eml_content
 from app.url_extractor import extract_urls
-from app.url_analyzer import analyze_urls, build_url_findings
+from app.url_analyzer import run_url_analysis
 from app.language_analyzer import run_language_analysis
 from app.attachment_analyzer import run_attachment_analysis
 from app.email_structure_analyzer import run_email_structure_analysis
@@ -105,24 +105,29 @@ def build_findings(
         language_findings: list[dict],
         attachment_findings: list[dict],
         email_structure_findings: list[dict],
-        url_analysis: dict,
+        url_findings: list[dict],
 ) -> list[dict]:
     findings = []
 
     findings.extend(language_findings)
     findings.extend(attachment_findings)
     findings.extend(email_structure_findings)
-    findings.extend(build_url_findings(url_analysis))
+    findings.extend(url_findings)
     
     return findings
 
 def analyze_parsed_email(parsed_email: dict) -> dict:
     urls = extract_urls(parsed_email["text_body"])
-    url_analysis = analyze_urls(urls)
+
+    url_analysis_result = run_url_analysis(urls)
+    url_analysis = url_analysis_result["url_analysis"]
+
     language_analysis = run_language_analysis(parsed_email["text_body"])
     suspicious_keywords = language_analysis["suspicious_keywords"]
+
     attachment_analysis = run_attachment_analysis(parsed_email["attachments"])
     risky_attachments = attachment_analysis["risky_attachments"]
+
     email_structure_analysis = run_email_structure_analysis(parsed_email)
     reply_to_mismatch = email_structure_analysis["reply_to_mismatch"]
 
@@ -151,7 +156,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
         language_analysis["findings"],
         attachment_analysis["findings"],
         email_structure_analysis["findings"],
-        url_analysis,
+        url_analysis_result["findings"],
     )
 
     score_breakdown = build_score_breakdown(

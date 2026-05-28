@@ -5,6 +5,7 @@ from app.url_analyzer import (
     has_suspicious_tld,
     analyze_urls,
     build_url_findings,
+    run_url_analysis,
 )
 
 def test_extract_domain_from_url():
@@ -42,3 +43,15 @@ def test_build_urls_for_suspicious_tld():
     assert findings[0]["severity"] == "low"
     assert findings[0]["title"] == "Suspicious top-level domain detected"
     assert findings[0]["evidence"] == "https://account-alert.xyz/login"
+
+def test_run_url_analysis_returns_url_analysis_and_findings():
+    urls = ["https://account-alert.xyz/login"]
+
+    result = run_url_analysis(urls)
+
+    assert result["url_analysis"]["suspicious_tld_urls"] == [
+        "https://account-alert.xyz/login"
+    ]
+    assert len(result["findings"]) == 1
+    assert result["findings"][0]["source"] == "URL Analyzer"
+    assert result["findings"][0]["title"] == "Suspicious top-level domain detected"
