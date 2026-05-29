@@ -1,5 +1,5 @@
-from app.analyzer import classify_score
-from app.analyzer import build_score_breakdown
+from app.scoring import classify_score
+from app.scoring import build_score_breakdown
 
 def test_classify_score_safe():
     assert classify_score(0) == "Safe"
