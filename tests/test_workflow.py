@@ -35,3 +35,7 @@ Thank you.
     assert len(result_state["url_findings"]) == 1
     assert len(result_state["findings"]) == 1
     assert result_state["recommended_actions"]
+
+    assert "audit_trail" in result_state
+    assert len(result_state["audit_trail"]) == 5
+    assert result_state["audit_trail"][-1].startswith("Verdict Agent assigned verdict")

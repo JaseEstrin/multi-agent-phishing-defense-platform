@@ -28,3 +28,5 @@ class AnalysisState(TypedDict, total=False):
     evidence: list[str]
     recommended_actions: list[str]
     safety_notice:str
+
+    audit_trail: list[str]

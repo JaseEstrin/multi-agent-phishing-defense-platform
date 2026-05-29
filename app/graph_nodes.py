@@ -40,6 +40,10 @@ def run_language_step(state: AnalysisState) -> AnalysisState:
         len(state["language_findings"]),
     )
 
+    state["audit_trail"].append(
+        f"Language Agent found {len(state['language_analysis']['suspicious_keywords'])} suspicious keyword(s)."
+    )
+
     return state
 
 def run_attachment_step(state: AnalysisState) -> AnalysisState:
@@ -62,6 +66,10 @@ def run_attachment_step(state: AnalysisState) -> AnalysisState:
         len(state["attachment_findings"]),
     )
 
+    state["audit_trail"].append(
+        f"Attachment Agent reviewed {len(parsed_email.get('attachments', []))} attachment(s) and flagged {len(state['attachment_findings'])} issue(s)."
+    )
+
     return state
 
 def run_email_structure_step(state: AnalysisState) -> AnalysisState:
@@ -79,6 +87,10 @@ def run_email_structure_step(state: AnalysisState) -> AnalysisState:
         state.get("analysis_id"),
         state["email_structure_analysis"]["reply_to_mismatch"],
         len(state["email_structure_findings"]),
+    )
+
+    state["audit_trail"].append(
+        f"Email Structure Agent checked sender metadata and produced {len(state['email_structure_findings'])} finding(s)."
     )
 
     return state
@@ -105,6 +117,10 @@ def run_url_step(state: AnalysisState) -> AnalysisState:
         state.get("analysis_id"),
         len(state["urls"]),
         len(state["url_findings"]),
+    )
+
+    state["audit_trail"].append(
+        f"URL Agent analyzed {len(state['urls'])} URL(s) and produced {len(state['url_findings'])} finding(s)."
     )
 
     return state
@@ -157,6 +173,10 @@ def run_verdict_step(state: AnalysisState) -> AnalysisState:
         state["score"],
         state["verdict"],
         len(state["findings"]),
+    )
+
+    state["audit_trail"].append(
+        f"Verdict Agent assigned verdict '{state['verdict']}' with score {state['score']}."
     )
 
     return state

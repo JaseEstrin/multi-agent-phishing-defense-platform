@@ -32,6 +32,7 @@ def create_initial_state(parsed_email: dict) -> AnalysisState:
         "evidence": [],
         "recommended_actions": [],
         "safety_notice": SAFETY_NOTICE,
+        "audit_trail": [],
     }
 
 def build_analysis_result(state: AnalysisState) -> AnalysisState:
@@ -51,6 +52,7 @@ def build_analysis_result(state: AnalysisState) -> AnalysisState:
         "score_breakdown": state["score_breakdown"],
         "recommended_actions": state["recommended_actions"],
         "safety_notice": state["safety_notice"],
+        "audit_trail": state["audit_trail"],
     }
 
 def analyze_parsed_email(parsed_email: dict) -> dict:

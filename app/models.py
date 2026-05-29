@@ -65,3 +65,4 @@ class PhishingAnalysisResult(BaseModel):
     score_breakdown: ScoreBreakdown
     recommended_actions: list[str]
     safety_notice: str
+    audit_trail: list[str]
