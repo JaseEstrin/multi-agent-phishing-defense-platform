@@ -1,3 +1,5 @@
+import logging
+
 from app.state import AnalysisState
 from app.url_extractor import extract_urls
 from app.url_analyzer import run_url_analysis
@@ -14,7 +16,11 @@ from app.scoring import (
 
 from app.recommendations import build_recommended_actions
 
+logger = logging.getLogger(__name__)
+
 def run_language_step(state: AnalysisState) -> AnalysisState:
+    logger.info("Language agent started: analysis_id=%s", state.get("analysis_id"))
+
     parsed_email = state["parsed_email"]
 
     combined_body = (
@@ -27,9 +33,18 @@ def run_language_step(state: AnalysisState) -> AnalysisState:
     state["language_analysis"] = language_analysis_result
     state["language_findings"] = language_analysis_result["findings"]
 
+    logger.info(
+        "Language agent completed: analysis_id=%s keyword_count=%s finding_count=%s",
+        state.get("analysis_id"),
+        len(state["language_analysis"]["suspicious_keywords"]),
+        len(state["language_findings"]),
+    )
+
     return state
 
 def run_attachment_step(state: AnalysisState) -> AnalysisState:
+    logger.info("Attachment agent started: analysis_id=%s", state.get("analysis_id"))
+
     parsed_email = state["parsed_email"]
 
     attachment_analysis_result = run_attachment_analysis(
@@ -39,9 +54,19 @@ def run_attachment_step(state: AnalysisState) -> AnalysisState:
     state["attachment_analysis"] = attachment_analysis_result
     state["attachment_findings"] = attachment_analysis_result["findings"]
 
+    logger.info(
+        "Attachment agent completed: analysis_id=%s attachment_count=%s risky_attachment_count=%s finding_count=%s",
+        state.get("analysis_id"),
+        len(parsed_email.get("attachments", [])),
+        len(state["attachment_analysis"]["risky_attachments"]),
+        len(state["attachment_findings"]),
+    )
+
     return state
 
 def run_email_structure_step(state: AnalysisState) -> AnalysisState:
+    logger.info("Email structure agent started: analysis_id=%s", state.get("analysis_id"))
+
     parsed_email = state["parsed_email"]
 
     email_structure_result = run_email_structure_analysis(parsed_email)
@@ -49,9 +74,18 @@ def run_email_structure_step(state: AnalysisState) -> AnalysisState:
     state["email_structure_analysis"] = email_structure_result
     state["email_structure_findings"] = email_structure_result["findings"]
 
+    logger.info(
+        "Email structure agent completed: analysis_id=%s reply_to_mismatch=%s finding_count=%s",
+        state.get("analysis_id"),
+        state["email_structure_analysis"]["reply_to_mismatch"],
+        len(state["email_structure_findings"]),
+    )
+
     return state
 
 def run_url_step(state: AnalysisState) -> AnalysisState:
+    logger.info("URL agent started: analysis_id=%s", state.get("analysis_id"))
+
     parsed_email = state["parsed_email"]
 
     combined_body = (
@@ -66,9 +100,18 @@ def run_url_step(state: AnalysisState) -> AnalysisState:
     state["url_analysis"] = url_analysis_result["url_analysis"]
     state["url_findings"] = url_analysis_result["findings"]
 
+    logger.info(
+        "URL agent completed: analysis_id=%s url_count=%s finding_count=%s",
+        state.get("analysis_id"),
+        len(state["urls"]),
+        len(state["url_findings"]),
+    )
+
     return state
 
 def run_verdict_step(state: AnalysisState) -> AnalysisState:
+    logger.info("Verdict agent started: analysis_id=%s", state.get("analysis_id"))
+
     parsed_email = state["parsed_email"]
 
     suspicious_keywords = state["language_analysis"]["suspicious_keywords"]
@@ -106,6 +149,14 @@ def run_verdict_step(state: AnalysisState) -> AnalysisState:
     state["recommended_actions"] = build_recommended_actions(
         state["verdict"],
         state["findings"],
+    )
+
+    logger.info(
+        "Verdict agent completed: analysis_id=%s score=%s verdict=%s finding_count=%s",
+        state.get("analysis_id"),
+        state["score"],
+        state["verdict"],
+        len(state["findings"]),
     )
 
     return state

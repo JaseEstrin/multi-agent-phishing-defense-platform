@@ -6,13 +6,7 @@ from uuid import uuid4
 
 from app.state import AnalysisState
 from app.email_parser import parse_eml_file, parse_eml_content
-from app.graph_nodes import(
-    run_language_step,
-    run_attachment_step,
-    run_email_structure_step,
-    run_url_step,
-    run_verdict_step
-)
+from app.workflow import run_analysis_workflow
 from app.recommendations import SAFETY_NOTICE
 
 logger = logging.getLogger(__name__)
@@ -64,11 +58,7 @@ def analyze_parsed_email(parsed_email: dict) -> dict:
 
     logger.info("Analysis started: %s", state["analysis_id"])
 
-    state = run_url_step(state)
-    state = run_language_step(state)
-    state = run_attachment_step(state)
-    state = run_email_structure_step(state)
-    state = run_verdict_step(state)
+    state = run_analysis_workflow(state)
 
     result = build_analysis_result(state)
 
